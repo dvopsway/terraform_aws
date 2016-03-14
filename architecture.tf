@@ -112,9 +112,10 @@ resource "aws_security_group" "nat_sg" {
 resource "aws_instance" "nat_instance" {
     ami = "${lookup(var.nat_ami, var.region)}"
     instance_type = "t2.micro"
-    subnet_id = "aws_subnet.publicsubnet1.id"
+    subnet_id = "${aws_subnet.publicsubnet1.id}"
     source_dest_check = false
     associate_public_ip_address = false
+    key_name = "${lookup(var.keyname, var.region)}"
     tags {
         Name = "Nat_${var.customer_name}"
         customer_name = "${var.customer_name}"
@@ -130,7 +131,7 @@ resource "aws_route_table" "private_rtb" {
     vpc_id = "${aws_vpc.customer_vpc.id}"
     route {
         cidr_block = "0.0.0.0/0"
-        nat_gateway_id = "${aws_instance.nat_instance.id}"
+        instance_id = "${aws_instance.nat_instance.id}"
     }
 
     tags {
